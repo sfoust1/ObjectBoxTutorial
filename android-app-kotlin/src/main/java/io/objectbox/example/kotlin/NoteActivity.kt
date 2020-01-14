@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView.OnItemClickListener
+import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.TextView
@@ -55,6 +56,7 @@ class NoteActivity : Activity() {
         findViewById<ListView>(R.id.listViewNotes).apply {
             adapter = notesAdapter
             onItemClickListener = noteClickListener
+            onItemLongClickListener = noteLongClickListener
         }
 
         addNoteButton = findViewById<View>(R.id.buttonAdd).apply {
@@ -86,7 +88,18 @@ class NoteActivity : Activity() {
 
         updateNotes()
     }
+    private val noteLongClickListener = OnItemLongClickListener { _, _, position, _ ->
 
+        notesAdapter.getItem(position)?.also {
+            var temp = notesBox.get(notesBox.getId(it))
+            if(editText.text.toString() != null) temp.text = editText.text.toString()
+            notesBox.put(temp)
+            Log.d(App.TAG, "Tried to edit, ID: " + it.id)
+            Log.d(App.TAG, "New Text for " + it.id + ": " + notesBox.get(notesBox.getId(it)).text)
+        }
+        updateNotes()
+        true;
+    }
     private val noteClickListener = OnItemClickListener { _, _, position, _ ->
         notesAdapter.getItem(position)?.also {
             notesBox.remove(it)
